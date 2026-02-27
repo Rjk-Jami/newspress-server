@@ -29,7 +29,7 @@ export const auth = betterAuth({
   },
   trustedOrigins: [
     "http://localhost:3000",
-    "https://newspress-client-flame.vercel.app",
+    "https://newspress-frontend.vercel.app",
     "https://localhost:3000",
     process.env.TRUSTED_ORIGIN || "",
   ].filter(Boolean),

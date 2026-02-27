@@ -23,37 +23,38 @@ var auth = betterAuth({
     useSecureCookies: true,
     defaultCookieAttributes: {
       sameSite: "none",
-      secure: true
+      secure: true,
     },
     cookies: {
       sessionToken: {
         attributes: {
           sameSite: "none",
-          secure: true
-        }
+          secure: true,
+        },
       },
       sessionData: {
         attributes: {
           sameSite: "none",
-          secure: true
-        }
-      }
-    }
+          secure: true,
+        },
+      },
+    },
   },
   trustedOrigins: [
+    "https://newspress-frontend.vercel.app",
     "http://localhost:3000",
-    "https://newspress-client-flame.vercel.app",
+    "https://newspress-frontend.vercel.app",
     "https://localhost:3000",
-    process.env.TRUSTED_ORIGIN || ""
+    process.env.TRUSTED_ORIGIN || "",
   ].filter(Boolean),
   emailAndPassword: { enabled: true },
   user: {
     additionalFields: {
       status: { type: "string", required: false, defaultValue: "ACTIVE" },
-      role: { type: "string", required: false, defaultValue: "USER" }
+      role: { type: "string", required: false, defaultValue: "USER" },
       // <--- add this
-    }
-  }
+    },
+  },
 });
 
 // src/modules/category/category.routes.ts
@@ -63,31 +64,31 @@ import express from "express";
 var createCategory = async (name) => {
   const slug = name.toLowerCase().replace(/\s+/g, "-");
   return await prisma.category.create({
-    data: { name, slug }
+    data: { name, slug },
   });
 };
 var getAllCategories = async () => {
   return await prisma.category.findMany({
-    orderBy: { createdAt: "asc" }
+    orderBy: { createdAt: "asc" },
   });
 };
 var updateCategory = async (id, name) => {
   const slug = name.toLowerCase().replace(/\s+/g, "-");
   return await prisma.category.update({
     where: { id },
-    data: { name, slug }
+    data: { name, slug },
   });
 };
 var deleteCategory = async (id) => {
   return await prisma.category.delete({
-    where: { id }
+    where: { id },
   });
 };
 var CategoryService = {
   createCategory,
   getAllCategories,
   updateCategory,
-  deleteCategory
+  deleteCategory,
 };
 
 // src/modules/category/category.controller.ts
@@ -98,12 +99,12 @@ var createCategory2 = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Category created successfully!",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message || "Something went wrong"
+      message: error.message || "Something went wrong",
     });
   }
 };
@@ -113,12 +114,12 @@ var getCategories = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Categories fetched successfully!",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message || "Something went wrong"
+      message: error.message || "Something went wrong",
     });
   }
 };
@@ -130,12 +131,12 @@ var updateCategory2 = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Category updated successfully!",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message || "Update failed"
+      message: error.message || "Update failed",
     });
   }
 };
@@ -145,12 +146,12 @@ var deleteCategory2 = async (req, res) => {
     await CategoryService.deleteCategory(id);
     res.status(200).json({
       success: true,
-      message: "Category deleted successfully!"
+      message: "Category deleted successfully!",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message || "Delete failed"
+      message: error.message || "Delete failed",
     });
   }
 };
@@ -158,7 +159,7 @@ var CategoryController = {
   createCategory: createCategory2,
   getCategories,
   updateCategory: updateCategory2,
-  deleteCategory: deleteCategory2
+  deleteCategory: deleteCategory2,
 };
 
 // src/middleware/auth.ts
@@ -167,12 +168,12 @@ var auth2 = (...roles) => {
   return async (req, res, next) => {
     try {
       const session = await auth.api.getSession({
-        headers: fromNodeHeaders(req.headers)
+        headers: fromNodeHeaders(req.headers),
       });
       if (!session) {
         return res.status(401).json({
           success: false,
-          message: "You are not authorized! Please login first."
+          message: "You are not authorized! Please login first.",
         });
       }
       const userData = {
@@ -181,12 +182,12 @@ var auth2 = (...roles) => {
         name: session.user.name,
         role: session.user.role,
         emailVerified: session.user.emailVerified,
-        image: session.user.image
+        image: session.user.image,
       };
       if (roles.length > 0 && !roles.includes(userData.role)) {
         return res.status(403).json({
           success: false,
-          message: `Forbidden! Only ${roles.join(", ")} can access this resource.`
+          message: `Forbidden! Only ${roles.join(", ")} can access this resource.`,
         });
       }
       req.user = userData;
@@ -195,7 +196,7 @@ var auth2 = (...roles) => {
       console.error("Auth Middleware Error:", error);
       res.status(500).json({
         success: false,
-        message: "Internal server error during authentication"
+        message: "Internal server error during authentication",
       });
     }
   };
@@ -207,18 +208,18 @@ var router = express.Router();
 router.post(
   "/create-category",
   auth_default("ADMIN" /* ADMIN */),
-  CategoryController.createCategory
+  CategoryController.createCategory,
 );
 router.get("/", CategoryController.getCategories);
 router.patch(
   "/update-category/:id",
   auth_default("ADMIN" /* ADMIN */),
-  CategoryController.updateCategory
+  CategoryController.updateCategory,
 );
 router.delete(
   "/delete-category/:id",
   auth_default("ADMIN" /* ADMIN */),
-  CategoryController.deleteCategory
+  CategoryController.deleteCategory,
 );
 var CategoryRoutes = router;
 
@@ -232,20 +233,20 @@ var createComment = async (data) => {
       text: data.text,
       postId: data.postId,
       userId: data.userId,
-      parentId: data.parentId || null
+      parentId: data.parentId || null,
     },
     include: {
       user: {
-        select: { name: true, image: true, role: true }
-      }
-    }
+        select: { name: true, image: true, role: true },
+      },
+    },
   });
 };
 var getCommentsByPostId = async (postId) => {
   return await prisma.comment.findMany({
     where: {
       postId,
-      parentId: null
+      parentId: null,
     },
     include: {
       user: {
@@ -253,8 +254,8 @@ var getCommentsByPostId = async (postId) => {
           id: true,
           name: true,
           image: true,
-          role: true
-        }
+          role: true,
+        },
       },
       replies: {
         include: {
@@ -263,44 +264,44 @@ var getCommentsByPostId = async (postId) => {
               id: true,
               name: true,
               image: true,
-              role: true
-            }
+              role: true,
+            },
           },
-          replies: true
+          replies: true,
         },
         orderBy: {
-          createdAt: "asc"
-        }
-      }
+          createdAt: "asc",
+        },
+      },
     },
     orderBy: {
-      createdAt: "desc"
-    }
+      createdAt: "desc",
+    },
   });
 };
 var getCommentById = async (id) => {
   return await prisma.comment.findUnique({
-    where: { id }
+    where: { id },
   });
 };
 var getAllComments = async () => {
   return await prisma.comment.findMany({
     include: {
       post: { select: { title: true, slug: true } },
-      user: { select: { name: true, role: true } }
+      user: { select: { name: true, role: true } },
     },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
 };
 var updateComment = async (id, text) => {
   return await prisma.comment.update({
     where: { id },
-    data: { text }
+    data: { text },
   });
 };
 var deleteComment = async (id) => {
   return await prisma.comment.delete({
-    where: { id }
+    where: { id },
   });
 };
 var CommentService = {
@@ -309,7 +310,7 @@ var CommentService = {
   updateComment,
   deleteComment,
   getAllComments,
-  getCommentsByPostId
+  getCommentsByPostId,
 };
 
 // src/modules/comment/comment.controller.ts
@@ -317,7 +318,12 @@ var createComment2 = async (req, res) => {
   try {
     const { text, postId, parentId } = req.body;
     const userId = req.user.id;
-    const result = await CommentService.createComment({ text, postId, userId, parentId });
+    const result = await CommentService.createComment({
+      text,
+      postId,
+      userId,
+      parentId,
+    });
     res.status(201).json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -338,12 +344,12 @@ var getComments = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Comments fetched successfully!",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message || "Failed to fetch comments"
+      message: error.message || "Failed to fetch comments",
     });
   }
 };
@@ -357,7 +363,9 @@ var updateComment2 = async (req, res) => {
       return res.status(404).json({ message: "Comment not found" });
     }
     if (comment.userId !== userId) {
-      return res.status(403).json({ message: "You can only edit your own comments" });
+      return res
+        .status(403)
+        .json({ message: "You can only edit your own comments" });
     }
     const result = await CommentService.updateComment(commentId, text);
     res.json(result);
@@ -377,7 +385,9 @@ var deleteComment2 = async (req, res) => {
       await CommentService.deleteComment(commentId);
       return res.json({ message: "Comment deleted successfully" });
     }
-    res.status(403).json({ message: "Unauthorized! Only owner or admin can delete" });
+    res
+      .status(403)
+      .json({ message: "Unauthorized! Only owner or admin can delete" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -387,7 +397,7 @@ var CommentController = {
   updateComment: updateComment2,
   deleteComment: deleteComment2,
   getComments,
-  getPostComments
+  getPostComments,
 };
 
 // src/modules/comment/comment.routes.ts
@@ -395,19 +405,19 @@ var router2 = express2.Router();
 router2.post(
   "/",
   auth_default("USER" /* USER */, "ADMIN" /* ADMIN */),
-  CommentController.createComment
+  CommentController.createComment,
 );
 router2.get("/", CommentController.getComments);
 router2.get("/post/:postId", CommentController.getPostComments);
 router2.patch(
   "/:commentId",
   auth_default("USER" /* USER */, "ADMIN" /* ADMIN */),
-  CommentController.updateComment
+  CommentController.updateComment,
 );
 router2.delete(
   "/:commentId",
   auth_default("USER" /* USER */, "ADMIN" /* ADMIN */),
-  CommentController.deleteComment
+  CommentController.deleteComment,
 );
 var CommentRoutes = router2;
 
@@ -416,23 +426,29 @@ import express3 from "express";
 
 // src/modules/news/news.service.ts
 var createNews = async (data, authorId) => {
-  const baseSlug = data.title.trim().toLowerCase().replace(/[\s_]+/g, "-").replace(/[^\u0980-\u09FFa-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+  const baseSlug = data.title
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, "-")
+    .replace(/[^\u0980-\u09FFa-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
   const slug = `${baseSlug}-${Date.now()}`;
   return await prisma.post.create({
     data: {
       ...data,
       slug,
-      authorId
-    }
+      authorId,
+    },
   });
 };
 var getAllNews = async () => {
   return await prisma.post.findMany({
     include: {
       category: { select: { name: true, slug: true } },
-      author: { select: { name: true, image: true } }
+      author: { select: { name: true, image: true } },
     },
-    orderBy: { createdAt: "desc" }
+    orderBy: { createdAt: "desc" },
   });
 };
 var getNewsBySlug = async (slug) => {
@@ -441,20 +457,20 @@ var getNewsBySlug = async (slug) => {
       where: { slug },
       data: {
         viewCount: {
-          increment: 1
-        }
+          increment: 1,
+        },
       },
       include: {
         category: true,
         author: {
-          select: { name: true, image: true }
+          select: { name: true, image: true },
         },
         comments: {
           include: {
-            user: { select: { name: true, image: true } }
-          }
-        }
-      }
+            user: { select: { name: true, image: true } },
+          },
+        },
+      },
     });
   } catch (error) {
     return await prisma.post.findUnique({
@@ -462,30 +478,35 @@ var getNewsBySlug = async (slug) => {
       include: {
         category: true,
         author: {
-          select: { name: true, image: true }
+          select: { name: true, image: true },
         },
         comments: {
           include: {
-            user: { select: { name: true, image: true } }
-          }
-        }
-      }
+            user: { select: { name: true, image: true } },
+          },
+        },
+      },
     });
   }
 };
 var updateNews = async (id, data) => {
   let updateData = { ...data };
   if (data.title) {
-    updateData.slug = data.title.trim().toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "");
+    updateData.slug = data.title
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   }
   return await prisma.post.update({
     where: { id },
-    data: updateData
+    data: updateData,
   });
 };
 var deleteNews = async (id) => {
   return await prisma.post.delete({
-    where: { id }
+    where: { id },
   });
 };
 var NewsService = {
@@ -493,7 +514,7 @@ var NewsService = {
   getAllNews,
   getNewsBySlug,
   updateNews,
-  deleteNews
+  deleteNews,
 };
 
 // src/modules/news/news.controller.ts
@@ -503,14 +524,14 @@ var createNews2 = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "User not found in request"
+        message: "User not found in request",
       });
     }
     const result = await NewsService.createNews(req.body, user.id);
     res.status(201).json({
       success: true,
       message: "News created successfully",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -532,7 +553,7 @@ var getSingleNews = async (req, res) => {
     if (!result) {
       return res.status(404).json({
         success: false,
-        message: "News not found in database"
+        message: "News not found in database",
       });
     }
     res.status(200).json({ success: true, data: result });
@@ -544,13 +565,15 @@ var updateNews2 = async (req, res) => {
   try {
     const id = req.params.id;
     if (!id) {
-      return res.status(400).json({ success: false, message: "News ID is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "News ID is required" });
     }
     const result = await NewsService.updateNews(id, req.body);
     res.status(200).json({
       success: true,
       message: "News updated successfully",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -560,10 +583,14 @@ var deleteNews2 = async (req, res) => {
   try {
     const id = req.params.id;
     if (!id) {
-      return res.status(400).json({ success: false, message: "News ID is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "News ID is required" });
     }
     await NewsService.deleteNews(id);
-    res.status(200).json({ success: true, message: "News deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "News deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -573,16 +600,24 @@ var NewsController = {
   getAllNews: getAllNews2,
   getSingleNews,
   updateNews: updateNews2,
-  deleteNews: deleteNews2
+  deleteNews: deleteNews2,
 };
 
 // src/modules/news/news.routes.ts
 var router3 = express3.Router();
-router3.post("/create-news", auth_default("ADMIN" /* ADMIN */), NewsController.createNews);
+router3.post(
+  "/create-news",
+  auth_default("ADMIN" /* ADMIN */),
+  NewsController.createNews,
+);
 router3.get("/", NewsController.getAllNews);
 router3.get("/slug/:slug", NewsController.getSingleNews);
 router3.patch("/update-news/:id", NewsController.updateNews);
-router3.delete("/:id", auth_default("ADMIN" /* ADMIN */), NewsController.deleteNews);
+router3.delete(
+  "/:id",
+  auth_default("ADMIN" /* ADMIN */),
+  NewsController.deleteNews,
+);
 var NewsRoutes = router3;
 
 // src/modules/stats/stats.routes.ts
@@ -590,7 +625,13 @@ import { Router } from "express";
 
 // src/modules/stats/stats.service.ts
 var getAdminStats = async () => {
-  const [totalNews, totalUsers, totalCategories, totalComments, recentComments] = await Promise.all([
+  const [
+    totalNews,
+    totalUsers,
+    totalCategories,
+    totalComments,
+    recentComments,
+  ] = await Promise.all([
     prisma.post.count(),
     prisma.user.count(),
     prisma.category.count(),
@@ -603,23 +644,43 @@ var getAdminStats = async () => {
         post: {
           select: {
             title: true,
-            slug: true
-          }
-        }
-      }
-    })
+            slug: true,
+          },
+        },
+      },
+    }),
   ]);
   const categoryStats = await prisma.category.findMany({
     select: {
       name: true,
-      _count: { select: { posts: true } }
-    }
+      _count: { select: { posts: true } },
+    },
   });
   const monthlyNews = [
-    { month: "Jan", total: await prisma.post.count({ where: { createdAt: { gte: /* @__PURE__ */ new Date("2026-01-01"), lte: /* @__PURE__ */ new Date("2026-01-31") } } }) },
-    { month: "Feb", total: await prisma.post.count({ where: { createdAt: { gte: /* @__PURE__ */ new Date("2026-02-01"), lte: /* @__PURE__ */ new Date("2026-02-28") } } }) },
+    {
+      month: "Jan",
+      total: await prisma.post.count({
+        where: {
+          createdAt: {
+            gte: /* @__PURE__ */ new Date("2026-01-01"),
+            lte: /* @__PURE__ */ new Date("2026-01-31"),
+          },
+        },
+      }),
+    },
+    {
+      month: "Feb",
+      total: await prisma.post.count({
+        where: {
+          createdAt: {
+            gte: /* @__PURE__ */ new Date("2026-02-01"),
+            lte: /* @__PURE__ */ new Date("2026-02-28"),
+          },
+        },
+      }),
+    },
     { month: "Mar", total: 0 },
-    { month: "Apr", total: 0 }
+    { month: "Apr", total: 0 },
   ];
   return {
     totalNews,
@@ -627,8 +688,11 @@ var getAdminStats = async () => {
     totalCategories,
     totalComments,
     recentComments,
-    categoryStats: categoryStats.map((cat) => ({ name: cat.name, comments: cat._count.posts })),
-    monthlyNews
+    categoryStats: categoryStats.map((cat) => ({
+      name: cat.name,
+      comments: cat._count.posts,
+    })),
+    monthlyNews,
   };
 };
 var StatsService = { getAdminStats };
@@ -639,22 +703,26 @@ var getStatsSummary = async (req, res) => {
     const stats = await StatsService.getAdminStats();
     res.status(200).json({
       success: true,
-      data: stats
+      data: stats,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 var StatsController = {
-  getStatsSummary
+  getStatsSummary,
 };
 
 // src/modules/stats/stats.routes.ts
 var router4 = Router();
-router4.get("/summary", auth_default("ADMIN" /* ADMIN */), StatsController.getStatsSummary);
+router4.get(
+  "/summary",
+  auth_default("ADMIN" /* ADMIN */),
+  StatsController.getStatsSummary,
+);
 var StatsRoutes = router4;
 
 // src/modules/users/users.routes.ts
@@ -669,22 +737,22 @@ var getAllUsersFromDB = async () => {
       email: true,
       role: true,
       image: true,
-      createdAt: true
+      createdAt: true,
     },
     orderBy: {
-      createdAt: "desc"
-    }
+      createdAt: "desc",
+    },
   });
 };
 var updateUserRoleInDB = async (userId, role) => {
   return await prisma.user.update({
     where: { id: userId },
-    data: { role }
+    data: { role },
   });
 };
 var UserService = {
   getAllUsersFromDB,
-  updateUserRoleInDB
+  updateUserRoleInDB,
 };
 
 // src/modules/users/users.controller.ts
@@ -694,12 +762,12 @@ var getAllUsers = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Users fetched successfully",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message || "Internal server error"
+      message: error.message || "Internal server error",
     });
   }
 };
@@ -711,36 +779,37 @@ var updateUserRole = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "User role updated successfully",
-      data: result
+      data: result,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message || "Internal server error"
+      message: error.message || "Internal server error",
     });
   }
 };
 var UserController = {
   getAllUsers,
-  updateUserRole
+  updateUserRole,
 };
 
 // src/modules/users/users.routes.ts
 var router5 = express4.Router();
 router5.get("/", auth_default("ADMIN" /* ADMIN */), UserController.getAllUsers);
-router5.patch("/update-role/:id", auth_default("ADMIN" /* ADMIN */), UserController.updateUserRole);
+router5.patch(
+  "/update-role/:id",
+  auth_default("ADMIN" /* ADMIN */),
+  UserController.updateUserRole,
+);
 var UserRoutes = router5;
 
 // src/app.ts
 var app = express5();
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://newspress-client-flame.vercel.app"
-    ],
-    credentials: true
-  })
+    origin: ["http://localhost:3000", "https://newspress-frontend.vercel.app"],
+    credentials: true,
+  }),
 );
 app.use(express5.json());
 app.all("/api/auth/*", (req, res) => {
@@ -758,6 +827,4 @@ var app_default = app;
 
 // src/index.ts
 var index_default = app_default;
-export {
-  index_default as default
-};
+export { index_default as default };
