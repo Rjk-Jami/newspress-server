@@ -28,6 +28,7 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: [
+    "https://www.newpress.info",
     "http://localhost:3000",
     "https://newspress-frontend.vercel.app",
     "https://localhost:3000",

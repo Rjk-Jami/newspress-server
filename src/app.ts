@@ -11,7 +11,11 @@ import { UserRoutes } from "./modules/users/users.routes";
 const app: Application = express();
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://newspress-frontend.vercel.app"],
+    origin: [
+      "https://www.newpress.info",
+      "http://localhost:3000",
+      "https://newspress-frontend.vercel.app",
+    ],
     credentials: true,
   }),
 );

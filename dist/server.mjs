@@ -41,6 +41,7 @@ var auth = betterAuth({
     },
   },
   trustedOrigins: [
+    "https://www.newpress.info",
     "http://localhost:3000",
     "https://newspress-frontend.vercel.app",
     "https://localhost:3000",
@@ -806,7 +807,11 @@ var UserRoutes = router5;
 var app = express5();
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://newspress-frontend.vercel.app"],
+    origin: [
+      "https://www.newpress.info",
+      "http://localhost:3000",
+      "https://newspress-frontend.vercel.app",
+    ],
     credentials: true,
   }),
 );
